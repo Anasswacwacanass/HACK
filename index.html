@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <title>Crash Stats – تحليل إحصائي</title>
+  <meta name="description" content="تحليل إحصائيات Crash ومؤشر مخاطرة. أداة تعليمية قانونية.">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body{font-family:Arial;background:#111;color:#eee;padding:16px}
+    h1{color:#f5c542}
+    input,button{padding:10px;margin:8px 0;width:100%}
+    .box{background:#1b1b1b;padding:14px;border-radius:8px;margin-top:10px}
+    .low{color:#4caf50}
+    .mid{color:#ff9800}
+    .high{color:#f44336}
+    small{color:#aaa}
+  </style>
+</head>
+<body>
+
+<h1>Crash – تحليل إحصائي</h1>
+<small>تنبيه: هذه أداة إحصائية/تعليمية فقط، لا توفّر توقّعاً للجولة الجاية.</small>
+
+<p>أدخل النتائج السابقة (مفصولة بفاصلة):</p>
+<input id="data" placeholder="1.03, 1.46, 2.44, 1.10, 3.27, 1.40">
+<button onclick="analyze()">حلّل</button>
+
+<div id="out" class="box"></div>
+
+<script>
+function analyze(){
+  const raw = document.getElementById('data').value;
+  const arr = raw.split(',').map(x=>parseFloat(x.trim())).filter(x=>!isNaN(x));
+  if(arr.length < 5){
+    document.getElementById('out').innerHTML = 'دخل 5 نتائج على الأقل.';
+    return;
+  }
+  let low=0, mid=0, high=0;
+  arr.forEach(x=>{
+    if(x < 1.2) low++;
+    else if(x < 2.0) mid++;
+    else high++;
+  });
+  const n = arr.length;
+  const lowP = low/n, midP = mid/n, highP = high/n;
+
+  let risk='منخفض', cls='low', advice='Cashout 1.3x–1.5x بحذر';
+  if(lowP > 0.35 || highP > 0.45){
+    risk='مرتفع'; cls='high'; advice='توقّف أو Cashout ≤ 1.2x';
+  } else if(lowP > 0.25){
+    risk='متوسط'; cls='mid'; advice='دخول واحد فقط – Cashout 1.2x–1.3x';
+  }
+
+  document.getElementById('out').innerHTML = `
+    <b>عدد النتائج:</b> ${n}<br>
+    <b>&lt; 1.2x:</b> ${(lowP*100).toFixed(1)}%<br>
+    <b>1.2–2.0x:</b> ${(midP*100).toFixed(1)}%<br>
+    <b>&gt; 2.0x:</b> ${(highP*100).toFixed(1)}%<br>
+    <b>مؤشّر المخاطرة:</b> <span class="${cls}">${risk}</span><br>
+    <b>توصية سلوكية:</b> ${advice}<br>
+    <small>لا يوجد توقّع للجولة الجاية.</small>
+  `;
+}
+</script>
+
+</body>
+</html>
